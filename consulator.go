@@ -8,9 +8,11 @@ import (
   "strings"
   "log"
   "path/filepath"
+  "encoding/json"
 )
 
 var path = flag.String("path", "", "Path to file or directory containing data to import")
+var enc = json.NewEncoder(os.Stdout)
 
 func main() {
   flag.Parse()

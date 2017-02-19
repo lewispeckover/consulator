@@ -21,18 +21,22 @@ func jsonWalk(prefix string, obj *jason.Object, err error) (error) {
     switch v.Interface().(type) {
       case string:
         fmt.Printf("%v: %v\n", prefix + "/" + k, v.Interface())
+        enc.Encode(v.Interface())
       case json.Number:
         fmt.Printf("%v: %v\n", prefix + "/" + k, v.Interface())
+        enc.Encode(v.Interface())
       case []interface {}:
         // json array
         o, _ := v.Array()
         fmt.Printf("%v: %v\n", prefix + "/" + k, strings.Join(jsonArrayChoose(o), ", "))
+        enc.Encode(v.Interface())
       case map[string]interface {}:
         // json object
         o, _ := v.Object()
         jsonWalk(prefix + "/" + k, o, err)
       case bool:
         fmt.Printf("%v: %v\n", prefix + "/" + k, v.Interface())
+        enc.Encode(v.Interface())
       case nil:
         // json nulls 
       default:
@@ -57,4 +61,3 @@ func jsonArrayChoose(arr []*jason.Value) (ret []string) {
   }
   return ret
 }
-
