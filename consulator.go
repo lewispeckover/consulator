@@ -4,22 +4,12 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/fatih/color"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 )
-
-var usage = func() {
-	fmt.Fprintf(os.Stderr, "Usage: %s [OPTIONS] [PATH]\n\n", os.Args[0])
-	fmt.Fprintln(os.Stderr, "PATH should be the path to a file or directory that contains your data.")
-	fmt.Fprintln(os.Stderr, "If no path is provided, stdin is used. In this case, -format must be specified.\n")
-	fmt.Fprintln(os.Stderr, "Options:\n")
-	flag.PrintDefaults()
-}
 
 var (
 	debug   = flag.Bool("debug", false, "Show debugging information")
@@ -35,23 +25,14 @@ var (
 	Info    *log.Logger
 	Warning *log.Logger
 	Error   *log.Logger
-)
-
-func logInit() {
-	if *trace {
-		Trace = log.New(os.Stderr, "TRACE: ", 0)
-		Info = log.New(os.Stderr, color.BlueString("INFO: "), 0)
-	} else if *debug {
-		Trace = log.New(ioutil.Discard, "TRACE: ", 0)
-		Info = log.New(os.Stderr, color.BlueString("INFO: "), 0)
-
-	} else {
-		Trace = log.New(ioutil.Discard, "TRACE: ", 0)
-		Info = log.New(ioutil.Discard, color.BlueString("INFO: "), 0)
+	usage   = func() {
+		fmt.Fprintf(os.Stderr, "Usage: %s [OPTIONS] [PATH]\n\n", os.Args[0])
+		fmt.Fprintln(os.Stderr, "PATH should be the path to a file or directory that contains your data.")
+		fmt.Fprintln(os.Stderr, "If no path is provided, stdin is used. In this case, -format must be specified.\n")
+		fmt.Fprintln(os.Stderr, "Options:\n")
+		flag.PrintDefaults()
 	}
-	Warning = log.New(os.Stderr, color.RedString("WARNING: "), 0)
-	Error = log.New(os.Stderr, color.RedString("ERROR: "), 0)
-}
+)
 
 func main() {
 	flag.Usage = usage
@@ -170,5 +151,4 @@ func exportData() {
 	}
 	os.Stdout.Write(json)
 	fmt.Println("")
-
 }
