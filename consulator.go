@@ -16,12 +16,15 @@ var (
 	dump    = flag.Bool("dump", false, "Dump loaded data as JSON, suitable for using in a 'consul kv import'")
 	format  = flag.String("format", "", "Specify data format(json or yaml) when reading from stdin.")
 	glue    = flag.String("glue", "\n", "Glue to use when joining array values")
+	sync    = flag.Bool("sync", false, "Sync to consul")
 	trace   = flag.Bool("trace", false, "Show even more debugging information")
+	quiet   = flag.Bool("quiet", false, "Only show errors")
 	enc     = json.NewEncoder(os.Stdout)
 	path    string
 	absPath string
 	data    map[string][]byte
 	Trace   *log.Logger
+	Debug   *log.Logger
 	Info    *log.Logger
 	Warning *log.Logger
 	Error   *log.Logger
@@ -74,6 +77,9 @@ func main() {
 	}
 	if *dump {
 		exportData()
+	}
+	if *sync {
+		syncConsul()
 	}
 }
 
