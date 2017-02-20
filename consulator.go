@@ -16,6 +16,7 @@ import (
 
 var (
 	path    = flag.String("path", "", "Path to file or directory containing data to import")
+	absPath string
 	debug   = flag.Bool("debug", false, "Show debugging information")
 	trace   = flag.Bool("trace", false, "Show even more debugging information")
 	enc     = json.NewEncoder(os.Stdout)
@@ -45,11 +46,12 @@ func logInit() {
 func main() {
 	flag.Parse()
 	logInit()
-	_, err := os.Stat(*path)
+	absPath, _ = filepath.Abs(*path)
+	_, err := os.Stat(absPath)
 	if err != nil {
 		Error.Fatal(err)
 	}
-	err = filepath.Walk(*path, parseConfig)
+	err = filepath.Walk(absPath, parseConfig)
 	if err != nil {
 		Error.Fatal(err)
 	}
