@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/antonholmquist/jason"
+	"github.com/hashicorp/consul/api"
 	"io"
 	"os"
 	"strings"
@@ -26,24 +27,24 @@ func jsonWalk(prefix []string, obj *jason.Object, err error) error {
 		switch v.Interface().(type) {
 		case string:
 			Info.Printf("%v: %v\n", key, v.Interface())
-			enc.Encode(v.Interface())
+			data = append(data, &api.KVPair{Key: key, Value: []byte(fmt.Sprintf("%v", v.Interface()))})
 		case json.Number:
 			Info.Printf("%v: %v\n", key, v.Interface())
-			enc.Encode(v.Interface())
+			data = append(data, &api.KVPair{Key: key, Value: []byte(fmt.Sprintf("%v", v.Interface()))})
 		case []interface{}:
 			// json array
 			o, _ := v.Array()
 			Info.Printf("%v: %v\n", key, strings.Join(jsonArrayChoose(o), ", "))
-			enc.Encode(v.Interface())
+			data = append(data, &api.KVPair{Key: key, Value: []byte(strings.Join(jsonArrayChoose(o), "\n"))})
+		case bool:
+			Info.Printf("%v: %v\n", key, v.Interface())
+			data = append(data, &api.KVPair{Key: key, Value: []byte(fmt.Sprintf("%v", v.Interface()))})
+		case nil:
+			// json nulls
 		case map[string]interface{}:
 			// json object
 			o, _ := v.Object()
 			jsonWalk(append(prefix, k), o, err)
-		case bool:
-			Info.Printf("%v: %v\n", key, v.Interface())
-			enc.Encode(v.Interface())
-		case nil:
-			// json nulls
 		default:
 			Warning.Printf("this is not a type we can handle: %T\n", v.Interface())
 		}

@@ -15,12 +15,13 @@ import (
 )
 
 var (
-	path    = flag.String("path", "", "Path to file or directory containing data to import")
+	path    = flag.String("path", "", "Path to file or directory containing data to load")
 	debug   = flag.Bool("debug", false, "Show debugging information")
 	trace   = flag.Bool("trace", false, "Show even more debugging information")
+	dump    = flag.Bool("dump", false, "Dump loaded data as JSON, suitable for using in a `consul kv import`")
 	enc     = json.NewEncoder(os.Stdout)
 	absPath string
-	data    *api.KVPairs
+	data    api.KVPairs
 	Trace   *log.Logger
 	Info    *log.Logger
 	Warning *log.Logger
@@ -55,7 +56,9 @@ func main() {
 	if err != nil {
 		Error.Fatal(err)
 	}
-	Dump()
+	if *dump {
+		exportData()
+	}
 }
 
 func parseConfig(path string, f os.FileInfo, err error) error {
@@ -115,4 +118,17 @@ func parseConfig(path string, f os.FileInfo, err error) error {
 		}
 	}
 	return nil
+}
+
+func exportData() {
+	exported := make([]*kvExportEntry, len(data))
+	for i, kv := range data {
+		exported[i] = toExportEntry(kv)
+	}
+	json, err := json.MarshalIndent(exported, "", "\t")
+	if err != nil {
+		Error.Printf("Error exporting data: %s", err)
+		os.Exit(2)
+	}
+	os.Stdout.Write(json)
 }
