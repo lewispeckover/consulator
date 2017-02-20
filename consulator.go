@@ -34,6 +34,12 @@ var (
 		fmt.Fprintln(os.Stderr, "If no path is provided, stdin is used. In this case, -format must be specified.\n")
 		fmt.Fprintln(os.Stderr, "Options:\n")
 		flag.PrintDefaults()
+		fmt.Fprintln(os.Stderr, "")
+		fmt.Fprintln(os.Stderr, "The usual Consul client environment variables can be used to configure the connection:\n")
+		fmt.Fprintln(os.Stderr, " - CONSUL_HTTP_ADDR")
+		fmt.Fprintln(os.Stderr, " - CONSUL_HTTP_TOKEN")
+		fmt.Fprintln(os.Stderr, " - CONSUL_HTTP_SSL\n")
+		fmt.Fprintln(os.Stderr, "Etc. See https://www.consul.io/docs/commands/ for a complete list.\n")
 	}
 )
 
