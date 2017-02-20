@@ -28,10 +28,10 @@ type kvExportEntry struct {
 	Value string `json:"value"`
 }
 
-func toExportEntry(pair *api.KVPair) *kvExportEntry {
+func toExportEntry(key string, val []byte) *kvExportEntry {
 	return &kvExportEntry{
-		Key:   pair.Key,
-		Flags: pair.Flags,
-		Value: base64.StdEncoding.EncodeToString(pair.Value),
+		Key:   key,
+		Flags: 0,
+		Value: base64.StdEncoding.EncodeToString(val),
 	}
 }

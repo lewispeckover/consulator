@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"github.com/fatih/color"
-	"github.com/hashicorp/consul/api"
 	"io"
 	"io/ioutil"
 	"log"
@@ -31,7 +30,7 @@ var (
 	enc     = json.NewEncoder(os.Stdout)
 	path    string
 	absPath string
-	data    api.KVPairs
+	data    map[string][]byte
 	Trace   *log.Logger
 	Info    *log.Logger
 	Warning *log.Logger
@@ -58,6 +57,7 @@ func main() {
 	flag.Usage = usage
 	flag.Parse()
 	logInit()
+	data = make(map[string][]byte)
 	switch flag.NArg() {
 	case 0:
 		// use stdin
@@ -159,8 +159,10 @@ func parseConfig(path string, f os.FileInfo, err error) error {
 
 func exportData() {
 	exported := make([]*kvExportEntry, len(data))
-	for i, kv := range data {
-		exported[i] = toExportEntry(kv)
+	i := 0
+	for key, val := range data {
+		exported[i] = toExportEntry(key, val)
+		i++
 	}
 	json, err := json.MarshalIndent(exported, "", "\t")
 	if err != nil {
