@@ -5,6 +5,7 @@ import (
 	"flag"
 	//"fmt"
 	"github.com/fatih/color"
+	"github.com/hashicorp/consul/api"
 	"io"
 	"io/ioutil"
 	"log"
@@ -18,6 +19,7 @@ var (
 	debug   = flag.Bool("debug", false, "Show debugging information")
 	trace   = flag.Bool("trace", false, "Show even more debugging information")
 	enc     = json.NewEncoder(os.Stdout)
+	data    *api.KVPairs
 	Trace   *log.Logger
 	Info    *log.Logger
 	Warning *log.Logger

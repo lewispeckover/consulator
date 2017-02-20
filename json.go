@@ -14,30 +14,30 @@ func parseJson(fp io.Reader) error {
 		Warning.Printf("%v: %v\n", path, err)
 	}
 	j, _ := jsonObj.GetObject()
-	jsonWalk("", j, err)
+	jsonWalk([]string{}, j, err)
 	return err
 }
 
-func jsonWalk(prefix string, obj *jason.Object, err error) error {
+func jsonWalk(prefix []string, obj *jason.Object, err error) error {
 	for k, v := range obj.Map() {
 		switch v.Interface().(type) {
 		case string:
-			Info.Printf("%v: %v\n", prefix+"/"+k, v.Interface())
+			Info.Printf("%v: %v\n", strings.Join(append(prefix, k), "/"), v.Interface())
 			enc.Encode(v.Interface())
 		case json.Number:
-			Info.Printf("%v: %v\n", prefix+"/"+k, v.Interface())
+			Info.Printf("%v: %v\n", strings.Join(append(prefix, k), "/"), v.Interface())
 			enc.Encode(v.Interface())
 		case []interface{}:
 			// json array
 			o, _ := v.Array()
-			Info.Printf("%v: %v\n", prefix+"/"+k, strings.Join(jsonArrayChoose(o), ", "))
+			Info.Printf("%v: %v\n", strings.Join(append(prefix, k), "/"), strings.Join(jsonArrayChoose(o), ", "))
 			enc.Encode(v.Interface())
 		case map[string]interface{}:
 			// json object
 			o, _ := v.Object()
-			jsonWalk(prefix+"/"+k, o, err)
+			jsonWalk(append(prefix, k), o, err)
 		case bool:
-			Info.Printf("%v: %v\n", prefix+"/"+k, v.Interface())
+			Info.Printf("%v: %v\n", strings.Join(append(prefix, k), "/"), v.Interface())
 			enc.Encode(v.Interface())
 		case nil:
 			// json nulls
