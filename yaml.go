@@ -10,19 +10,6 @@ import (
 )
 
 // yaml handling based on https://github.com/bronze1man/yaml2json
-func parseYaml(fp io.Reader) error {
-	yamlR, yamlW := io.Pipe()
-	go func() {
-		defer yamlW.Close()
-		err := yamlToJson(fp, yamlW)
-		if err != nil {
-			Warning.Printf("%v: %v\n")
-		}
-	}()
-	err := parseJson(yamlR)
-	return err
-}
-
 func yamlToJson(in io.Reader, out io.Writer) error {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {

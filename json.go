@@ -9,13 +9,13 @@ import (
 	"strings"
 )
 
-func parseJson(fp io.Reader) error {
+func parseJson(fp io.Reader, prefix []string) error {
 	jsonObj, err := jason.NewObjectFromReader(fp)
 	if err != nil {
 		Warning.Printf("%v: %v\n", path, err)
 	}
 	j, _ := jsonObj.GetObject()
-	jsonWalk([]string{}, j, err)
+	jsonWalk(prefix, j, err)
 	return err
 }
 

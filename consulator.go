@@ -16,10 +16,10 @@ import (
 
 var (
 	path    = flag.String("path", "", "Path to file or directory containing data to import")
-	absPath string
 	debug   = flag.Bool("debug", false, "Show debugging information")
 	trace   = flag.Bool("trace", false, "Show even more debugging information")
 	enc     = json.NewEncoder(os.Stdout)
+	absPath string
 	data    *api.KVPairs
 	Trace   *log.Logger
 	Info    *log.Logger
@@ -68,16 +68,31 @@ func parseConfig(path string, f os.FileInfo, err error) error {
 		if err != nil {
 			Warning.Printf("%v: %v\n", path, err)
 		}
+		keyPrefix := strings.Split(
+			// remove leading '/'
+			strings.TrimPrefix(
+				// remove the file extension
+				strings.TrimSuffix(
+					// remove the base path that was passed as -path
+					strings.TrimPrefix(path, absPath),
+					filepath.Ext(path)),
+				string(os.PathSeparator)),
+			string(os.PathSeparator))
+		if keyPrefix[0] == "" {
+			// remove the "" value if passed a file directly in -path
+			keyPrefix = []string{}
+		}
+		Info.Printf("keyprefix is %v", keyPrefix)
 		switch {
-		case strings.HasSuffix(path, ".json"):
+		case strings.HasSuffix(strings.ToLower(path), ".json"):
 			Info.Printf("Parsing %s as json", path)
-			err := parseJson(fp)
+			err := parseJson(fp, keyPrefix)
 			if err != nil {
 				Warning.Printf("%v: %v\n", path, err)
 			}
-		case strings.HasSuffix(path, ".yml"):
+		case strings.HasSuffix(strings.ToLower(path), ".yml"):
 			fallthrough
-		case strings.HasSuffix(path, ".yaml"):
+		case strings.HasSuffix(strings.ToLower(path), ".yaml"):
 			Info.Printf("Parsing %s as yaml", path)
 			// yaml handling based on https://github.com/bronze1man/yaml2json
 			yamlR, yamlW := io.Pipe()
@@ -88,13 +103,13 @@ func parseConfig(path string, f os.FileInfo, err error) error {
 					Warning.Printf("%v: %v\n", path, err)
 				}
 			}()
-			err := parseJson(yamlR)
+			err := parseJson(yamlR, keyPrefix)
 			if err != nil {
 				Warning.Printf("%v: %v\n", path, err)
 			}
-		case strings.HasSuffix(path, ".properties"):
+		case strings.HasSuffix(strings.ToLower(path), ".properties"):
 			Info.Printf("Parsing %s as properties", path)
-		case strings.HasSuffix(path, ".ini"):
+		case strings.HasSuffix(strings.ToLower(path), ".ini"):
 			Info.Printf("Parsing %s as ini", path)
 		default:
 		}
