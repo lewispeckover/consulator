@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"flag"
-	//"fmt"
+	"fmt"
 	"github.com/fatih/color"
 	"github.com/hashicorp/consul/api"
 	"io"
@@ -14,12 +14,21 @@ import (
 	"strings"
 )
 
+var usage = func() {
+	fmt.Fprintf(os.Stderr, "Usage: %s [OPTIONS] [PATH]\n\n", os.Args[0])
+	fmt.Fprintln(os.Stderr, "PATH should be the path to a file or directory that contains your data.")
+	fmt.Fprintln(os.Stderr, "If no path is provided, stdin is assumed.\n")
+	fmt.Fprintln(os.Stderr, "Options:\n")
+	flag.PrintDefaults()
+}
+
 var (
-	path    = flag.String("path", "", "Path to file or directory containing data to load")
 	debug   = flag.Bool("debug", false, "Show debugging information")
+	dump    = flag.Bool("dump", false, "Dump loaded data as JSON, suitable for using in a 'consul kv import'")
+	glue    = flag.String("glue", "\n", "Glue to use when joining array values")
 	trace   = flag.Bool("trace", false, "Show even more debugging information")
-	dump    = flag.Bool("dump", false, "Dump loaded data as JSON, suitable for using in a `consul kv import`")
 	enc     = json.NewEncoder(os.Stdout)
+	path    string
 	absPath string
 	data    api.KVPairs
 	Trace   *log.Logger
@@ -45,16 +54,27 @@ func logInit() {
 }
 
 func main() {
+	flag.Usage = usage
 	flag.Parse()
 	logInit()
-	absPath, _ = filepath.Abs(*path)
-	_, err := os.Stat(absPath)
-	if err != nil {
-		Error.Fatal(err)
-	}
-	err = filepath.Walk(absPath, parseConfig)
-	if err != nil {
-		Error.Fatal(err)
+	switch flag.NArg() {
+	case 0:
+		// use stdin
+	case 1:
+		path = flag.Arg(0)
+		absPath, _ = filepath.Abs(path)
+		_, err := os.Stat(absPath)
+		if err != nil {
+			Error.Fatal(err)
+		}
+		err = filepath.Walk(absPath, parseConfig)
+		if err != nil {
+			Error.Fatal(err)
+		}
+	default:
+		Error.Printf("1 argument expected, but found %d\n\n", flag.NArg())
+		usage()
+		os.Exit(255)
 	}
 	if *dump {
 		exportData()

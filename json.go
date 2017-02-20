@@ -26,18 +26,18 @@ func jsonWalk(prefix []string, obj *jason.Object, err error) error {
 		Trace.Printf("JSON iteration: %s", key)
 		switch v.Interface().(type) {
 		case string:
-			Info.Printf("%v: %v\n", key, v.Interface())
+			Info.Printf("%v: \"%v\"\n", key, v.Interface())
 			data = append(data, &api.KVPair{Key: key, Value: []byte(fmt.Sprintf("%v", v.Interface()))})
 		case json.Number:
-			Info.Printf("%v: %v\n", key, v.Interface())
+			Info.Printf("%v: \"%v\"\n", key, v.Interface())
 			data = append(data, &api.KVPair{Key: key, Value: []byte(fmt.Sprintf("%v", v.Interface()))})
 		case []interface{}:
 			// json array
 			o, _ := v.Array()
-			Info.Printf("%v: %v\n", key, strings.Join(jsonArrayChoose(o), ", "))
-			data = append(data, &api.KVPair{Key: key, Value: []byte(strings.Join(jsonArrayChoose(o), "\n"))})
+			Info.Printf("%v: \"%v\"\n", key, strings.Join(jsonArrayChoose(o), *glue))
+			data = append(data, &api.KVPair{Key: key, Value: []byte(strings.Join(jsonArrayChoose(o), *glue))})
 		case bool:
-			Info.Printf("%v: %v\n", key, v.Interface())
+			Info.Printf("%v: \"%v\"\n", key, v.Interface())
 			data = append(data, &api.KVPair{Key: key, Value: []byte(fmt.Sprintf("%v", v.Interface()))})
 		case nil:
 			// json nulls
