@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"flag"
 	"fmt"
 	"github.com/fatih/color"
@@ -105,8 +104,7 @@ func parseConfig(path string, f os.FileInfo, err error) error {
 	} else if flag.NArg() == 0 {
 		fp = os.Stdin
 	} else {
-		fp, err = os.Open(os.DevNull)
-		err = errors.New(fmt.Sprintf("Not a regular file: %s", path))
+		return nil
 	}
 	if err != nil {
 		Warning.Printf("%v: %v\n", path, err)
@@ -131,7 +129,7 @@ func parseConfig(path string, f os.FileInfo, err error) error {
 		Info.Printf("Parsing %s as json", path)
 		err := parseJson(fp, keyPrefix)
 		if err != nil {
-			Warning.Printf("%v: %v\n", path, err)
+			Error.Fatalf("%v: %v\n", path, err)
 		}
 	case strings.HasSuffix(strings.ToLower(path), ".yml"):
 		fallthrough
