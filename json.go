@@ -13,7 +13,7 @@ import (
 func parseJson(fp io.Reader, prefix []string) error {
 	jsonObj, err := jason.NewObjectFromReader(fp)
 	if err != nil {
-		Warning.Printf("%v: %v\n", path, err)
+		return err
 	}
 	j, _ := jsonObj.GetObject()
 	jsonWalk(prefix, j, err)
