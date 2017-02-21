@@ -71,7 +71,9 @@ func main() {
 				Error.Printf("%v: %v\n", path, err)
 			}
 		default:
-			Error.Fatal("When reading from stdin, the -format option must be provided and must one of: json, yaml\n")
+			Error.Println("When reading from stdin, the -format option must be provided and must be one of: json, yaml\n")
+			usage()
+			os.Exit(1)
 		}
 	case 1:
 		path = flag.Arg(0)
