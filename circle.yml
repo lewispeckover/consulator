@@ -9,4 +9,4 @@ deployment:
       - "go get github.com/tcnksm/ghr"
       - "CC=/usr/local/musl/bin/musl-gcc gox -osarch=\"linux/amd64\" -ldflags \"-linkmode external -extldflags '-static' -X 'main.Version=$(git describe --tags)' -X 'main.BuildDate=$(date -u '+%Y/%m/%d %H:%M:%S')'\" -output \"dist/consulator_$(git describe --tags)_{{.OS}}_{{.Arch}}\""
       - "ghr -t $GITHUB_TOKEN -u $CIRCLE_PROJECT_USERNAME -r $CIRCLE_PROJECT_REPONAME --replace `git describe --tags` dist/"
-
+      - curl -H "Content-Type: application/json" --data "{\"source_type\": \"Tag\", \"source_name\": \"$(git describe --tags)\"}" -X POST https://registry.hub.docker.com/u/lewispeckover/consulator/trigger/$DOCKER_HUB/
