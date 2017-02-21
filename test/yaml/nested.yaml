@@ -1,0 +1,8 @@
+---
+string: value
+int: 5294967294
+array:
+  - a
+  - 1
+  - true
+bool: false

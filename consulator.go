@@ -22,6 +22,7 @@ var (
 	enc     = json.NewEncoder(os.Stdout)
 	path    string
 	absPath string
+	nArgs   int
 	data    map[string][]byte
 	Trace   *log.Logger
 	Debug   *log.Logger
@@ -46,9 +47,10 @@ var (
 func main() {
 	flag.Usage = usage
 	flag.Parse()
+	nArgs = flag.NArg()
 	logInit()
 	data = make(map[string][]byte)
-	switch flag.NArg() {
+	switch nArgs {
 	case 0:
 		// use stdin
 		Trace.Println("No arguments, using stdin instead")
@@ -94,9 +96,9 @@ func main() {
 func parseConfig(path string, f os.FileInfo, err error) error {
 	var fp *os.File
 	Trace.Printf("Traversing %s", path)
-	if f.Mode().IsRegular() && flag.NArg() == 1 {
+	if f.Mode().IsRegular() && nArgs == 1 {
 		fp, err = os.Open(path)
-	} else if flag.NArg() == 0 {
+	} else if nArgs == 0 {
 		fp = os.Stdin
 	} else {
 		return nil
