@@ -20,6 +20,7 @@ var (
 	sync    = flag.Bool("sync", false, "Sync to consul")
 	trace   = flag.Bool("trace", false, "Show even more debugging information")
 	quiet   = flag.Bool("quiet", false, "Only show errors")
+	version = flag.Bool("version", false, "Show version")
 	enc     = json.NewEncoder(os.Stdout)
 	path    string
 	absPath string
@@ -43,11 +44,17 @@ var (
 		fmt.Fprintln(os.Stderr, " - CONSUL_HTTP_SSL\n")
 		fmt.Fprintln(os.Stderr, "Etc. See https://www.consul.io/docs/commands/ for a complete list.\n")
 	}
+	Version   string
+	BuildDate string
 )
 
 func main() {
 	flag.Usage = usage
 	flag.Parse()
+	if *version {
+		fmt.Fprintf(os.Stdout, "Version %s, built %s\n", Version, BuildDate)
+		os.Exit(0)
+	}
 	// clean up prefix
 	*prefix = strings.TrimSuffix(strings.TrimPrefix(*prefix, "/"), "/")
 	if *prefix != "" {

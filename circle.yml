@@ -7,6 +7,6 @@ deployment:
       - "cd musl-1.1.16 && ./configure && make && sudo make install"
       - "go get github.com/mitchellh/gox"
       - "go get github.com/tcnksm/ghr"
-      - "CC=/usr/local/musl/bin/musl-gcc gox -osarch=\"linux/amd64\" -ldflags \"-linkmode external -extldflags '-static' -X main.Version='$(git describe --tags)' -X main.BuildDate='$(date -u '+%Y/%m/%d %H:%M:%S')'\" -output \"dist/consulator_${BUILD_VERSION}_{{.OS}}_{{.Arch}}\""
+      - "CC=/usr/local/musl/bin/musl-gcc gox -osarch=\"linux/amd64\" -ldflags \"-linkmode external -extldflags '-static' -X 'main.Version=$(git describe --tags)' -X 'main.BuildDate=$(date -u '+%Y/%m/%d %H:%M:%S')'\" -output \"dist/consulator_$(git describe --tags)_{{.OS}}_{{.Arch}}\""
       - "ghr -t $GITHUB_TOKEN -u $CIRCLE_PROJECT_USERNAME -r $CIRCLE_PROJECT_REPONAME --replace `git describe --tags` dist/"
 
