@@ -1,11 +1,10 @@
 package main
 
 import (
-	"encoding/base64"
-	//"fmt"
 	"bytes"
+	"encoding/base64"
 	"github.com/hashicorp/consul/api"
-	//"strings"
+	"strings"
 )
 
 var config = api.DefaultConfig()
@@ -14,7 +13,7 @@ var client, _ = api.NewClient(config)
 func syncConsul() {
 	Info.Println("Walking consul")
 	kv := client.KV()
-	pairs, _, err := kv.List("/", &api.QueryOptions{})
+	pairs, _, err := kv.List(*prefix, &api.QueryOptions{})
 	if err != nil {
 		Error.Fatal(err)
 	}
@@ -22,14 +21,16 @@ func syncConsul() {
 	d := 0
 	u := 0
 	for _, pair := range pairs {
-		if val, ok := data[pair.Key]; ok {
+		// if there was a prefix, we need to strip it
+		relativeKey := strings.TrimPrefix(pair.Key, *prefix)
+		if val, ok := data[relativeKey]; ok {
 			if bytes.Equal(val, pair.Value) {
 				Trace.Printf("key %s can be ignored\n", pair.Key)
-				delete(data, pair.Key)
+				delete(data, relativeKey)
 			}
 		} else {
 			Trace.Printf("key %s should be removed\n", pair.Key)
-			_, err := kv.Delete(pair.Key, nil)
+			_, err := kv.Delete(relativeKey, nil)
 			if err != nil {
 				Error.Printf("Error removing %s: %s\n", pair.Key, err)
 			} else {
@@ -38,10 +39,10 @@ func syncConsul() {
 		}
 	}
 	for key, val := range data {
-		Trace.Printf("set %s to %s", key, string(val))
+		Trace.Printf("set %s to %s", *prefix+key, string(val))
 		_, err := kv.Put(toKVPair(key, val), nil)
 		if err != nil {
-			Error.Printf("Error putting %s: %s: %s\n", key, string(val), err)
+			Error.Printf("Error putting %s: %s: %s\n", *prefix+key, string(val), err)
 		} else {
 			u++
 		}
@@ -57,7 +58,7 @@ type kvExportEntry struct {
 
 func toExportEntry(key string, val []byte) *kvExportEntry {
 	return &kvExportEntry{
-		Key:   key,
+		Key:   *prefix + key,
 		Flags: 0,
 		Value: base64.StdEncoding.EncodeToString(val),
 	}
@@ -65,7 +66,7 @@ func toExportEntry(key string, val []byte) *kvExportEntry {
 
 func toKVPair(key string, val []byte) *api.KVPair {
 	return &api.KVPair{
-		Key:   key,
+		Key:   *prefix + key,
 		Flags: 0,
 		Value: val,
 	}

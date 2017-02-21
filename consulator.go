@@ -15,6 +15,7 @@ var (
 	debug   = flag.Bool("debug", false, "Show debugging information")
 	dump    = flag.Bool("dump", false, "Dump loaded data as JSON, suitable for using in a 'consul kv import'")
 	format  = flag.String("format", "", "Specify data format(json or yaml) when reading from stdin.")
+	prefix  = flag.String("prefix", "", "Specifies a Consul tree to work under.")
 	glue    = flag.String("glue", "\n", "Glue to use when joining array values")
 	sync    = flag.Bool("sync", false, "Sync to consul")
 	trace   = flag.Bool("trace", false, "Show even more debugging information")
@@ -47,6 +48,11 @@ var (
 func main() {
 	flag.Usage = usage
 	flag.Parse()
+	// clean up prefix
+	*prefix = strings.TrimSuffix(strings.TrimPrefix(*prefix, "/"), "/")
+	if *prefix != "" {
+		*prefix += "/"
+	}
 	nArgs = flag.NArg()
 	logInit()
 	data = make(map[string][]byte)
