@@ -1,57 +1,59 @@
-package main
+package configparser
 
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/antonholmquist/jason"
 	"io"
-	"os"
 	"strings"
+
+	"github.com/antonholmquist/jason"
 )
 
-func parseJson(fp io.Reader, prefix []string) error {
+func parseJson(fp io.Reader, prefix []string, glue string) error {
 	jsonObj, err := jason.NewObjectFromReader(fp)
 	if err != nil {
 		return err
 	}
-	j, _ := jsonObj.GetObject()
-	jsonWalk(prefix, j, err)
-	return err
+	j, err := jsonObj.GetObject()
+	if err != nil {
+		return err
+	}
+	return jsonWalk(prefix, j)
 }
 
-func jsonWalk(prefix []string, obj *jason.Object, err error) error {
+func jsonWalk(prefix []string, obj *jason.Object) error {
 	for k, v := range obj.Map() {
 		key := strings.Join(append(prefix, k), "/")
-		Trace.Printf("JSON iteration: %s", key)
 		switch v.Interface().(type) {
 		case string:
-			Debug.Printf("%v: \"%v\"\n", key, v.Interface())
 			data[key] = []byte(fmt.Sprintf("%v", v.Interface()))
 		case json.Number:
-			Debug.Printf("%v: \"%v\"\n", key, v.Interface())
 			data[key] = []byte(fmt.Sprintf("%v", v.Interface()))
 		case []interface{}:
 			// json array
 			o, _ := v.Array()
-			Debug.Printf("%v: \"%v\"\n", key, strings.Join(jsonArrayChoose(o), *glue))
-			data[key] = []byte(strings.Join(jsonArrayChoose(o), *glue))
+			val, err := jsonArrayChoose(o)
+			if err != nil {
+				return err
+			}
+			data[key] = []byte(strings.Join(val, glue))
 		case bool:
-			Debug.Printf("%v: \"%v\"\n", key, v.Interface())
 			data[key] = []byte(fmt.Sprintf("%v", v.Interface()))
 		case nil:
 			// json nulls
 		case map[string]interface{}:
 			// json object
 			o, _ := v.Object()
-			jsonWalk(append(prefix, k), o, err)
+			if err := jsonWalk(append(prefix, k), o); err != nil {
+				return err
+			}
 		default:
-			Warning.Printf("this is not a type we can handle: %T\n", v.Interface())
 		}
 	}
 	return nil
 }
 
-func jsonArrayChoose(arr []*jason.Value) (ret []string) {
+func jsonArrayChoose(arr []*jason.Value) (ret []string, err error) {
 	for _, v := range arr {
 		switch v.Interface().(type) {
 		case string:
@@ -61,9 +63,8 @@ func jsonArrayChoose(arr []*jason.Value) (ret []string) {
 		case bool:
 			ret = append(ret, fmt.Sprintf("%v", v.Interface()))
 		default:
-			Error.Printf("Invalid type %T in array. Only strings, numbers and boolean values are supported.\n", v.Interface())
-			os.Exit(1)
+			return ret, fmt.Errorf(fmt.Sprintf("Invalid type %T in array. Only strings, numbers and boolean values are supported.\n", v.Interface()))
 		}
 	}
-	return ret
+	return ret, nil
 }
