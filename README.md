@@ -36,7 +36,8 @@ Options:
   -yaml
     	Parse stdin as YAML
 
-Multiple paths (files or directories) may be provided, they are parsed in order. This allows you to specify some default values in the first path.
+Multiple paths (files or directories) may be provided, they are parsed in order. 
+This allows you to specify some default values in the first path.
 If no paths are provided, stdin is used. In this case, -yaml or -json must be specified.
 
 The usual Consul client environment variables can be used to configure the connection:
