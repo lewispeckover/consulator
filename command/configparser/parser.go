@@ -37,8 +37,6 @@ func ParseAsYAML(path string, dataDest map[string][]byte, arrayGlue string) erro
 func walk(path string, fstat os.FileInfo, err error) error {
 	var fp *os.File
 	if fstat.Mode().IsDir() {
-		os.Stderr.WriteString("\nskipping dir ")
-		os.Stderr.WriteString(path)
 		return nil
 	} else {
 		fp, err = os.Open(path)

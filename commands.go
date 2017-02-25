@@ -20,6 +20,11 @@ func init() {
 				Ui: ui,
 			}, nil
 		},
+		"import": func() (cli.Command, error) {
+			return &command.ImportCommand{
+				Ui: ui,
+			}, nil
+		},
 		"version": func() (cli.Command, error) {
 			return &command.VersionCommand{
 				Version:   Version,
