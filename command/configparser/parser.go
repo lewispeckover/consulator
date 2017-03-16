@@ -81,6 +81,12 @@ func walk(path string, fstat os.FileInfo, err error) error {
 	// TODO: .properties parsing
 	//case strings.HasSuffix(strings.ToLower(path), ".ini"):
 	// TODO: .ini parsing
+	// filenames with no type, or .txt should be handled as raw data
+	case ! strings.Contains(fstat.Name(), ".") || strings.HasSuffix(strings.ToLower(path), ".txt"):
+		err := parseRaw(fp, keyPrefix, glue)
+		if err != nil {
+			return err
+		}
 	default:
 	}
 	return nil
