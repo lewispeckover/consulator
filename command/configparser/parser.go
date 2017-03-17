@@ -35,6 +35,10 @@ func ParseAsYAML(path string, dataDest map[string][]byte, arrayGlue string) erro
 }
 
 func walk(path string, fstat os.FileInfo, err error) error {
+	// skip .git etc
+	if fstat.IsDir() && strings.HasPrefix(fstat.Name(), ".") { 
+		return filepath.SkipDir 
+	}
 	var fp *os.File
 	if fstat.Mode().IsDir() {
 		return nil
@@ -59,6 +63,9 @@ func walk(path string, fstat os.FileInfo, err error) error {
 		keyPrefix = []string{}
 	}
 	switch {
+	// skip dotfiles
+	case strings.HasPrefix(fstat.Name(), "."):
+		return nil
 	case strings.HasSuffix(strings.ToLower(path), ".json") || forceType == "json":
 		err := parseJson(fp, keyPrefix, glue)
 		if err != nil {
