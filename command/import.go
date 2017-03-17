@@ -109,7 +109,7 @@ func (c *ImportCommand) syncConsul(data map[string][]byte) error {
 				delete(data, relativeKey)
 			}
 		} else {
-			_, err := kv.Delete(relativeKey, nil)
+			_, err := kv.Delete(pair.Key, nil)
 			if err != nil {
 				return err
 			} else {
