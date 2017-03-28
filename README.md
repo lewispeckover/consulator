@@ -24,6 +24,7 @@ Usage: consulator [--version] [--help] <command> [<options>] [<path> ...]
 Available commands are:
     dump       Dumps parsed config as JSON suitable for use with consul kv import
     import     Imports data into consul
+    sync       Syncs data into consul (like import, but with deletes)
     version    Prints the version
 
 Options:
@@ -69,7 +70,7 @@ or equivalent `myapp.json`:
 }
 ```
 
-Running `consulator import -glue=, myapp.yaml` will result in a Consul key `myapp/tags` with the value `production,web`
+Running `consulator import -glue=, myapp.yaml` will result in a Consul key `tags` with the value `production,web`
 
 When a directory is specified as the source, it is scanned for files with extensions .json, .yaml or .yml. Subdirectories and filenames are used to build key prefixes. 
 

@@ -23,15 +23,21 @@ type ImportCommand struct {
 	arrayGlue   *string
 	keyPrefix   *string
 	initialised bool
+	Purge       bool
 }
 
 func (c *ImportCommand) init() {
 	if c.initialised {
 		return
 	}
-	c.name = "consulator import"
+	if c.Purge {
+		c.name = "consulator sync"
+		c.synopsis = "Syncs data into consul (like import, but with deletes)"
+	} else {
+		c.name = "consulator import"
+		c.synopsis = "Imports data into consul"
+	}
 	c.args = "[options] [path ...]"
-	c.synopsis = "Imports data into consul"
 	c.flags = flag.NewFlagSet("import", flag.ContinueOnError)
 	c.parseAsYAML = c.flags.Bool("yaml", false, "Parse stdin as YAML")
 	c.parseAsJSON = c.flags.Bool("json", false, "Parse stdin as JSON")
@@ -108,7 +114,7 @@ func (c *ImportCommand) syncConsul(data map[string][]byte) error {
 			if bytes.Equal(val, pair.Value) {
 				delete(data, relativeKey)
 			}
-		} else {
+		} else if c.Purge {
 			_, err := kv.Delete(pair.Key, nil)
 			if err != nil {
 				return err
