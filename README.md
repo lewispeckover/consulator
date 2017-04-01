@@ -34,6 +34,8 @@ Options:
     	Parse stdin as JSON
   -prefix string
     	Key prefix to use for output / Consul import destination
+  -tar
+    	Parse stdin as a tarball
   -yaml
     	Parse stdin as YAML
 
@@ -53,7 +55,7 @@ Etc. See https://www.consul.io/docs/commands/ for a complete list.
 
 ## Source data
 
-JSON and YAML sources are supported. Data can be loaded from files or piped from standard input. Note that Consul KV values are only allowed to be strings, so non-string values are converted where possible. Most significantly, array values are joined with a configurable glue string (default: "\n").
+JSON, YAML, and plain text sources are supported. Data can be loaded from files, piped directly to standard input, or provided as a tarball. Note that Consul KV values are only allowed to be strings, so non-string values are converted where possible. Most significantly, array values are joined with a configurable glue string (default: "\n").
 
 Given a `myapp.yaml`:
 
