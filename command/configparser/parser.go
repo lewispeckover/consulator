@@ -39,7 +39,7 @@ func Parse(path string, dataDest map[string][]byte, arrayGlue string) error {
 
 			path := header.Name
 			info := header.FileInfo()
-			err = walk(path, info, nil)
+			err = fpWalk(path, info, tarReader, nil)
 			if err != nil && err != filepath.SkipDir {
 				return err
 			}
@@ -66,20 +66,21 @@ func ParseAsTAR(path string, dataDest map[string][]byte, arrayGlue string) error
 }
 
 func walk(path string, fstat os.FileInfo, err error) error {
-	// skip .git etc
-	if fstat.IsDir() && strings.HasPrefix(fstat.Name(), ".") {
-		return filepath.SkipDir
-	}
-	var fp *os.File
-	if fstat.Mode().IsDir() {
-		return nil
-	} else {
-		fp, err = os.Open(path)
-	}
+	fp, err := os.Open(path)
 	if err != nil {
 		return err
 	}
 	defer fp.Close()
+	return fpWalk(path, fstat, fp, err)
+}
+func fpWalk(path string, fstat os.FileInfo, fp io.Reader, err error) error {
+	// skip .git etc
+	if fstat.IsDir() && strings.HasPrefix(fstat.Name(), ".") {
+		return filepath.SkipDir
+	}
+	if fstat.Mode().IsDir() {
+		return nil
+	}
 	keyPrefix := strings.Split(
 		// remove leading '/'
 		strings.TrimPrefix(
