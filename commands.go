@@ -25,6 +25,12 @@ func init() {
 				Ui: ui,
 			}, nil
 		},
+		"sync": func() (cli.Command, error) {
+			return &command.ImportCommand{
+				Ui: ui,
+				Purge: true,
+			}, nil
+		},
 		"version": func() (cli.Command, error) {
 			return &command.VersionCommand{
 				Version:   Version,
