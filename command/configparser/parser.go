@@ -1,6 +1,7 @@
 package configparser
 
 import (
+	"archive/tar"
 	"io"
 	"os"
 	"path/filepath"
@@ -20,7 +21,31 @@ func Parse(path string, dataDest map[string][]byte, arrayGlue string) error {
 	if err != nil {
 		return err
 	}
-	err = filepath.Walk(absPath, walk)
+	if forceType == "tar" {
+		fp, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+		tarReader := tar.NewReader(fp)
+		for {
+			header, err := tarReader.Next()
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
+				return err
+			}
+
+			path := header.Name
+			info := header.FileInfo()
+			err = walk(path, info, nil)
+			if err != nil && err != filepath.SkipDir {
+				return err
+			}
+		}
+	} else {
+		err = filepath.Walk(absPath, walk)
+	}
 	return err
 }
 
@@ -34,10 +59,15 @@ func ParseAsYAML(path string, dataDest map[string][]byte, arrayGlue string) erro
 	return Parse(path, dataDest, arrayGlue)
 }
 
+func ParseAsTAR(path string, dataDest map[string][]byte, arrayGlue string) error {
+	forceType = "tar"
+	return Parse(path, dataDest, arrayGlue)
+}
+
 func walk(path string, fstat os.FileInfo, err error) error {
 	// skip .git etc
-	if fstat.IsDir() && strings.HasPrefix(fstat.Name(), ".") { 
-		return filepath.SkipDir 
+	if fstat.IsDir() && strings.HasPrefix(fstat.Name(), ".") {
+		return filepath.SkipDir
 	}
 	var fp *os.File
 	if fstat.Mode().IsDir() {
@@ -89,7 +119,7 @@ func walk(path string, fstat os.FileInfo, err error) error {
 	//case strings.HasSuffix(strings.ToLower(path), ".ini"):
 	// TODO: .ini parsing
 	// filenames with no type, or .txt should be handled as raw data
-	case ! strings.Contains(fstat.Name(), ".") || strings.HasSuffix(strings.ToLower(path), ".txt"):
+	case !strings.Contains(fstat.Name(), ".") || strings.HasSuffix(strings.ToLower(path), ".txt"):
 		err := parseRaw(fp, keyPrefix, glue)
 		if err != nil {
 			return err

@@ -21,6 +21,7 @@ type DumpCommand struct {
 	flags       *flag.FlagSet
 	parseAsYAML *bool
 	parseAsJSON *bool
+	parseAsTAR  *bool
 	arrayGlue   *string
 	keyPrefix   *string
 	initialised bool
@@ -36,6 +37,7 @@ func (c *DumpCommand) init() {
 	c.flags = flag.NewFlagSet("dump", flag.ContinueOnError)
 	c.parseAsYAML = c.flags.Bool("yaml", false, "Parse stdin as YAML")
 	c.parseAsJSON = c.flags.Bool("json", false, "Parse stdin as JSON")
+	c.parseAsTAR = c.flags.Bool("tar", false, "Parse stdin as a tarball")
 	c.arrayGlue = c.flags.String("glue", "\n", "Glue to use for joining array values")
 	c.keyPrefix = c.flags.String("prefix", "", "Key prefix to use for output")
 	c.flags.Usage = func() { c.Ui.Output(c.Help()) }
@@ -66,6 +68,11 @@ func (c *DumpCommand) Run(args []string) int {
 			}
 		case *c.parseAsJSON:
 			if err := configparser.ParseAsJSON("/dev/stdin", data, *c.arrayGlue); err != nil {
+				c.Ui.Error(fmt.Sprintf("Error: %s", err))
+				return 1
+			}
+		case *c.parseAsTAR:
+			if err := configparser.ParseAsTAR("/dev/stdin", data, *c.arrayGlue); err != nil {
 				c.Ui.Error(fmt.Sprintf("Error: %s", err))
 				return 1
 			}
