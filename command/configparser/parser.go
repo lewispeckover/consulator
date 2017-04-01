@@ -36,8 +36,8 @@ func Parse(path string, dataDest map[string][]byte, arrayGlue string) error {
 			if err != nil {
 				return err
 			}
-
-			path := header.Name
+			// a tar can have some annoying paths
+			path := strings.TrimPrefix(header.Name, "./")
 			info := header.FileInfo()
 			err = fpWalk(path, info, tarReader, nil)
 			if err != nil && err != filepath.SkipDir {
