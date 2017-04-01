@@ -1,5 +1,12 @@
 # Change Log
 
+## [0.4.1](https://github.com/lewispeckover/consulator/tree/0.4.1) (2017-04-01)
+[Full Changelog](https://github.com/lewispeckover/consulator/compare/0.4.0...0.4.1)
+
+**Implemented enhancements:**
+
+- Handle tar archives directly [\#3](https://github.com/lewispeckover/consulator/issues/3)
+
 ## [0.4.0](https://github.com/lewispeckover/consulator/tree/0.4.0) (2017-03-28)
 [Full Changelog](https://github.com/lewispeckover/consulator/compare/0.3.3...0.4.0)
 
