@@ -26,6 +26,7 @@ func Parse(path string, dataDest map[string][]byte, arrayGlue string) error {
 		if err != nil {
 			return err
 		}
+		defer fp.Close()
 		tarReader := tar.NewReader(fp)
 		for {
 			header, err := tarReader.Next()
@@ -78,6 +79,7 @@ func walk(path string, fstat os.FileInfo, err error) error {
 	if err != nil {
 		return err
 	}
+	defer fp.Close()
 	keyPrefix := strings.Split(
 		// remove leading '/'
 		strings.TrimPrefix(
