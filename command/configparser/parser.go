@@ -21,7 +21,8 @@ func Parse(path string, dataDest map[string][]byte, arrayGlue string) error {
 	if err != nil {
 		return err
 	}
-	if forceType == "tar" {
+	if forceType == "tar" || strings.HasSuffix(strings.ToLower(path), ".tar") {
+		os.Stdout.WriteString("a wild tar appears!")
 		fp, err := os.Open(path)
 		if err != nil {
 			return err
