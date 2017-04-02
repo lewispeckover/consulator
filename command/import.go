@@ -139,7 +139,7 @@ func (c *ImportCommand) syncConsul(data map[string][]byte) error {
 			updated++
 		}
 	}
-	c.Ui.Output(fmt.Sprintf("Import completed. %d keys deleted, %d keys updated.\n", deleted, updated))
+	c.Ui.Output(fmt.Sprintf("Import completed. %d keys deleted, %d keys updated.", deleted, updated))
 	return nil
 }
 
