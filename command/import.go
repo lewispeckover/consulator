@@ -109,25 +109,27 @@ func (c *ImportCommand) syncConsul(data map[string][]byte) error {
 		return err
 	}
 	kv := client.KV()
-	pairs, _, err := kv.List(*c.keyPrefix, &api.QueryOptions{})
-	if err != nil {
-		return err
-	}
 	deleted := 0
 	updated := 0
-	for _, pair := range pairs {
-		// if there was a prefix, we need to strip it
-		relativeKey := strings.TrimPrefix(pair.Key, *c.keyPrefix)
-		if val, ok := data[relativeKey]; ok {
-			if bytes.Equal(val, pair.Value) {
-				delete(data, relativeKey)
-			}
-		} else if c.Purge {
-			_, err := kv.Delete(pair.Key, nil)
-			if err != nil {
-				return err
-			} else {
-				deleted++
+	if c.Purge {
+		pairs, _, err := kv.List(*c.keyPrefix, &api.QueryOptions{})
+		if err != nil {
+			return err
+		}
+		for _, pair := range pairs {
+			// if there was a prefix, we need to strip it
+			relativeKey := strings.TrimPrefix(pair.Key, *c.keyPrefix)
+			if val, ok := data[relativeKey]; ok {
+				if bytes.Equal(val, pair.Value) {
+					delete(data, relativeKey)
+				}
+			} else if c.Purge {
+				_, err := kv.Delete(pair.Key, nil)
+				if err != nil {
+					return err
+				} else {
+					deleted++
+				}
 			}
 		}
 	}
@@ -139,7 +141,11 @@ func (c *ImportCommand) syncConsul(data map[string][]byte) error {
 			updated++
 		}
 	}
-	c.Ui.Output(fmt.Sprintf("Import completed. %d keys deleted, %d keys updated.", deleted, updated))
+	if c.Purge {
+		c.Ui.Output(fmt.Sprintf("Sync completed. %d keys deleted, %d keys updated.", deleted, updated))
+	} else {
+		c.Ui.Output(fmt.Sprintf("Import completed. %d keys set.", updated))
+	}
 	return nil
 }
 
