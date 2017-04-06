@@ -1,5 +1,15 @@
 # Change Log
 
+## [0.4.3](https://github.com/lewispeckover/consulator/tree/0.4.3) (2017-04-06)
+[Full Changelog](https://github.com/lewispeckover/consulator/compare/0.4.2...0.4.3)
+
+**Implemented enhancements:**
+
+- Performance: don't walk the destination kv tree for `import` [\#4](https://github.com/lewispeckover/consulator/issues/4)
+
+## [0.4.2](https://github.com/lewispeckover/consulator/tree/0.4.2) (2017-04-02)
+[Full Changelog](https://github.com/lewispeckover/consulator/compare/0.4.1...0.4.2)
+
 ## [0.4.1](https://github.com/lewispeckover/consulator/tree/0.4.1) (2017-04-01)
 [Full Changelog](https://github.com/lewispeckover/consulator/compare/0.4.0...0.4.1)
 
